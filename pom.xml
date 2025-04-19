@@ -8,8 +8,8 @@
 		<version>3.4.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.meettime</groupId>
-	<artifactId>meettime</artifactId>
+	<groupId>com.hubspot</groupId>
+	<artifactId>hubspot</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>meettime</name>
 	<description>Case Técnico: Integração com HubSpot</description>
