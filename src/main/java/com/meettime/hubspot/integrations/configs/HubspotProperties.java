@@ -10,21 +10,21 @@ import lombok.Data;
 @Data
 public class HubspotProperties {
 
-    @Value("${CLIENT_ID}")
+    @Value("${client_id}")
     private String clientId;
 
-    @Value("${CLIENT_SECRET}")
+    @Value("${client_secret}")
     private String clientSecret;
 
-    @Value("${SCOPE}")
+    @Value("${scope}")
     private String scopes;
 
-    @Value("${REDIRECT_URI}")
+    @Value("${redirect_uri}")
     private String redirectUri;
 
-    @Value("${AUTH_URL}")
+    @Value("${auth_url}")
     private String authUrl;
 
-    @Value("${TOKEN_URL}")
+    @Value("${token_url}")
     private String tokenUrl;
 }
