@@ -70,11 +70,11 @@ Para testes locais com webhooks do HubSpot, é necessário expor sua aplicação
 
 2. Abra o arquivo `ngrok.exe` na raiz do projeto pelo explorador de arquivos do Windows
 
-3. Com o arquivo aberto, execute:
+3. Com o arquivo aberto, execute o comando:
 
-``
-ngrok http 8080
-``
+
+- ngrok http 8080
+
 
 4. Copie a URL HTTPS gerada (ex: https://cadc-2804-14c-87e2-83df-3591-b6a7-6750-df77.ngrok-free.app)
 
@@ -82,20 +82,20 @@ ngrok http 8080
 
 6. Exemplo de URL completa para o webhook:
 
-``
-https://cadc-2804-14c-87e2-83df-3591-b6a7-6750-df77.ngrok-free.app/hubspot/contact/created
-``
+- https://cadc-2804-14c-87e2-83df-3591-b6a7-6750-df77.ngrok-free.app/hubspot/contact/created
 
 7. Nesse endpoint chegará o webhook
 ---
 
 ## 🔁 Executando o projeto
 
+#### *Substitua `sua.url.ngrok` pela gerada na sua máquina a partir do ngrok*
+
 1. Rode o projeto
 
-2. Abra o navegador e acesse o endpoint `http:localhost:8080/oauth/hubspot/redirect` e siga o fluxo
+2. Abra o navegador e acesse o endpoint `https://sua.url.ngrok/oauth/hubspot/redirect` e siga o fluxo
 
-3. Após isso, faça uma chamada no Postman com o verbo `POST` para o endpoint `http:localhost:8080/contacts/create` com o seguinte `body`:  
+3. Após isso, faça uma chamada no Postman com o verbo `POST` para o endpoint `https://sua.url.ngrok/contacts/create` com o seguinte `body`:  
 ```
 {
     "email": "email@teste.com",

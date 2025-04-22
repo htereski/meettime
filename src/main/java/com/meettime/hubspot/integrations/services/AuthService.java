@@ -10,15 +10,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
 import com.meettime.hubspot.integrations.configs.HubspotProperties;
 import com.meettime.hubspot.integrations.configs.TokenStore;
 import com.meettime.hubspot.integrations.responses.TokenResponse;
-
 import lombok.extern.log4j.Log4j2;
-import static java.util.Objects.nonNull;
+import static java.util.Objects.isNull;
 
 @Log4j2
 @Service
@@ -64,16 +67,30 @@ public class AuthService {
         form.add("redirect_uri", properties.getRedirectUri());
         form.add("code", code);
 
-        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(form, headers);
-        ResponseEntity<TokenResponse> response = this.restTemplate.postForEntity(
-                this.properties.getTokenUrl(),
-                entity,
-                TokenResponse.class);
+        try {
+            HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(form, headers);
+            ResponseEntity<TokenResponse> response = this.restTemplate.postForEntity(
+                    this.properties.getTokenUrl(),
+                    entity,
+                    TokenResponse.class);
 
-        if (nonNull(response.getBody())) {
+            if (isNull(response.getBody())) {
+                throw new RestClientException("Failed to get access token from HubSpot");
+            }
+
             this.tokenStore.saveToken(response.getBody().getAccessToken());
-        }
 
-        return response.getBody();
+            return response.getBody();
+        } catch (HttpClientErrorException | HttpServerErrorException ex) {
+            log.error("HTTP error when requesting token: {} - {}", ex.getStatusCode(), ex.getResponseBodyAsString(),
+                    ex);
+            throw new RestClientException("HTTP error when requesting token", ex);
+        } catch (ResourceAccessException ex) {
+            log.error("Resource access error (timeout, connection): {}", ex.getMessage(), ex);
+            throw new RestClientException("Connection error when requesting token", ex);
+        } catch (RestClientException ex) {
+            log.error("Error requesting token: {}", ex.getMessage(), ex);
+            throw new RestClientException("Error requesting token", ex);
+        }
     }
 }
