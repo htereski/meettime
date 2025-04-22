@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import com.meettime.hubspot.integrations.configs.TokenStore;
 import com.meettime.hubspot.integrations.requests.ContactRequest;
@@ -49,16 +50,25 @@ public class ContactService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
         try {
-            this.restTemplate.postForEntity(
+            ResponseEntity<ContactResponse> response = this.restTemplate.postForEntity(
                     this.urlCreateContact,
                     entity,
                     ContactResponse.class);
 
-            log.info("Contact created successfully: ".concat(contact.toString()));
+            log.info("Contact created successfully: {} | Response: {}", contact, response.getBody());
             return ResponseEntity.status(HttpStatus.OK).body("Contact created successfully");
-        } catch (HttpClientErrorException e) {
-            log.error("Error creating contact: ".concat(e.getMessage()));
+        } catch (HttpClientErrorException.Conflict e) {
+            log.warn("Conflict error creating contact: Contact already exists - {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Contact already exists");
+        } catch (HttpClientErrorException e) {
+            log.error("Client error creating contact: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid contact data");
+        } catch (RestClientException e) {
+            log.error("Error during HTTP request: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
+        } catch (Exception e) {
+            log.error("Unexpected error creating contact: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error occurred");
         }
     }
 
